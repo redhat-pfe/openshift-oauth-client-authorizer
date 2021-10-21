@@ -1,0 +1,4 @@
+---
+test_namespace: openshift-oauth-client-authorizer-test
+test_user1: openshift-oauth-client-authorizer-test1
+test_user2: openshift-oauth-client-authorizer-test2

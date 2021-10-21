@@ -1,0 +1,104 @@
+---
+- name: Create first test User
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: user.openshift.io/v1
+      kind: User
+      metadata:
+        name: "{{ test_user1 }}"
+
+- name: Create test OAuthClientAuthorizationAutomation
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: pfe.redhat.com/v1
+      kind: OAuthClientAuthorizationAutomation
+      metadata:
+        name: test
+        namespace: "{{ test_namespace }}"
+      spec:
+        serviceAccountName: test
+
+- name: Check first test user authorization
+  kubernetes.core.k8s_info:
+    api_version: oauth.openshift.io/v1
+    kind: OAuthClientAuthorization
+    name: "{{ test_user1 }}:system:serviceaccount:{{ test_namespace }}:test"
+  register: r_get_oauthclientauthorization
+  vars:
+    _authorization: "{{ r_get_oauthclientauthorization.resources[0] | default('') }}"
+  failed_when: >-
+    r_get_oauthclientauthorization.resources | default([]) | length != 1 or
+    _authorization.scopes != ["user:info", "user:check-access"] or
+    _authorization.userName != test_user1 or
+    _authorization.clientName != "system:serviceaccount:" ~ test_namespace ~ ":test"
+  until: r_get_oauthclientauthorization is success
+  retries: 10
+  delay: 1
+
+- name: Delete first test user
+  kubernetes.core.k8s:
+    api_version: user.openshift.io/v1
+    kind: User
+    name: "{{ test_user1 }}"
+    state: absent
+
+- name: Check first test user authorization removed
+  kubernetes.core.k8s_info:
+    api_version: oauth.openshift.io/v1
+    kind: OAuthClientAuthorization
+    name: "{{ test_user1 }}:system:serviceaccount:{{ test_namespace }}:test"
+  register: r_get_oauthclientauthorization
+  vars:
+    _authorization: "{{ r_get_oauthclientauthorization.resources[0] | default('') }}"
+  failed_when: >-
+    r_get_oauthclientauthorization.resources | default([]) | length != 0
+  until: r_get_oauthclientauthorization is success
+  retries: 10
+  delay: 1
+
+- name: Create second test User
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: user.openshift.io/v1
+      kind: User
+      metadata:
+        name: "{{ test_user2 }}"
+
+- name: Check first test user authorization
+  kubernetes.core.k8s_info:
+    api_version: oauth.openshift.io/v1
+    kind: OAuthClientAuthorization
+    name: "{{ test_user2 }}:system:serviceaccount:{{ test_namespace }}:test"
+  register: r_get_oauthclientauthorization
+  vars:
+    _authorization: "{{ r_get_oauthclientauthorization.resources[0] | default('') }}"
+  failed_when: >-
+    r_get_oauthclientauthorization.resources | default([]) | length != 1 or
+    _authorization.scopes != ["user:info", "user:check-access"] or
+    _authorization.userName != test_user2 or
+    _authorization.clientName != "system:serviceaccount:" ~ test_namespace ~ ":test"
+  until: r_get_oauthclientauthorization is success
+  retries: 10
+  delay: 1
+
+- name: Delete test OAuthClientAuthorizationAutomation
+  kubernetes.core.k8s:
+    state: absent
+    api_version: pfe.redhat.com/v1
+    kind: OAuthClientAuthorizationAutomation
+    name: test
+    namespace: "{{ test_namespace }}"
+
+- name: Check second test user authorization removed
+  kubernetes.core.k8s_info:
+    api_version: oauth.openshift.io/v1
+    kind: OAuthClientAuthorization
+    name: "{{ test_user2 }}:system:serviceaccount:{{ test_namespace }}:test"
+  register: r_get_oauthclientauthorization
+  vars:
+    _authorization: "{{ r_get_oauthclientauthorization.resources[0] | default('') }}"
+  failed_when: >-
+    r_get_oauthclientauthorization.resources | default([]) | length != 0
+  until: r_get_oauthclientauthorization is success
+  retries: 10
+  delay: 1

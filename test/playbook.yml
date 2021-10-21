@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    test_oc_cmd: oc
+    tests:
+    - core
+  tasks:
+  - name: Run tests
+    include_role:
+      name: "{{ _test_role }}"
+    loop: "{{ tests }}"
+    loop_control:
+      loop_var: _test_name
+    vars:
+      _test_role: test_{{ _test_name }}

@@ -1,0 +1,52 @@
+---
+- name: Create test Namespace
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ test_namespace }}"
+
+- name: Create test Service
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: test
+        namespace: "{{ test_namespace }}"
+      spec:
+        ports:
+        - name: http
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+        selector:
+          app.kubernetes.io/name: test
+
+- name: Create test Route
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: test
+        namespace: "{{ test_namespace }}"
+      spec:
+        tls:
+          termination: edge
+        to:
+          kind: Service
+          name: test
+
+- name: Create test ServiceAccount
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        annotations:
+          serviceaccounts.openshift.io/oauth-redirectreference.primary: >-
+            {"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"test"}}
+        name: test
+        namespace: "{{ test_namespace }}"

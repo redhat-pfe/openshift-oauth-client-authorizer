@@ -1,0 +1,64 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "openshift-oauth-client-authorizer.name" . }}
+  labels:
+    {{- include "openshift-oauth-client-authorizer.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - oauth.openshift.io
+  resources:
+  - oauthclientauthorizations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - pfe.redhat.com
+  resources:
+  - oauthclientauthorizationautomations
+  - oauthclientauthorizationautomations/status
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - user.openshift.io
+  resources:
+  - users
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - update
+{{ if .Values.deploy -}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "openshift-oauth-client-authorizer.name" . }}
+  labels:
+    {{- include "openshift-oauth-client-authorizer.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "openshift-oauth-client-authorizer.name" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "openshift-oauth-client-authorizer.name" . }}
+  namespace: {{ include "openshift-oauth-client-authorizer.namespaceName" . }}
+{{- end -}}

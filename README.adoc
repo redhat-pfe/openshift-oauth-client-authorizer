@@ -1,0 +1,3 @@
+# OpenShift OAuth Client Authorizer
+
+Operator to automatically create OAuthClientAuthorization objects for users.

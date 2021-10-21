@@ -1,0 +1,9 @@
+---
+- name: Setup for test
+  include_tasks: setup.yml
+
+- name: Run test
+  include_tasks: test.yml
+
+- name: Cleanup after test
+  include_tasks: cleanup.yml
