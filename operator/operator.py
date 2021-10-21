@@ -197,7 +197,7 @@ class OAuthClientAuthorizationAutomation:
                 return authorization
             except kubernetes.client.rest.ApiException as e:
                 if e.status == 409:
-                    self.logger.warning(
+                    self.logger.info(
                         'Conflict while creating OAuthClientAuthorization',
                         extra = dict(
                             User = user.reference

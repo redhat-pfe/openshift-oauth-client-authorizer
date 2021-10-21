@@ -38,6 +38,18 @@ rules:
   - list
   - watch
 - apiGroups:
+  - kopf.dev
+  resources:
+  - clusterkopfpeerings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - ""
   resources:
   - events

@@ -13,6 +13,12 @@ Use of `odo` is recommended for fast iterative development.
 . Install the `odo` developer CLI as described in the OpenShift documentation:
 https://docs.openshift.com/container-platform/latest/cli_reference/developer_cli_odo/installing-odo.html[Installing odo]
 
+. Create custom resource definition for clusterkopfpeerings.kopf.dev:
++
+---------------------------------------------
+oc apply -f clusterkopfpeerings.kopf.dev.yaml
+---------------------------------------------
+
 . Create custom resource definition and cluster role from the provided helm chart:
 +
 ---------------------------------------------------------------------
@@ -47,7 +53,7 @@ odo push
 . Run tests with Ansible:
 +
 -----------------------------------
-ansible-playbook test/playbook.yaml
+ansible-playbook test/playbook.yml
 -----------------------------------
 
 . Cleanup
@@ -95,6 +101,12 @@ helm template helm --include-crds \
 --set=image.repository=$(oc get imagestream openshift-oauth-client-authorizer -o jsonpath='{.status.tags[?(@.tag=="latest")].items[0].dockerImageReference}') \
 | oc apply -f -
 --------------------------------------------------------------------------------
+
+. Run tests with Ansible:
++
+-----------------------------------
+ansible-playbook test/playbook.yml
+-----------------------------------
 
 . Cleanup
 +

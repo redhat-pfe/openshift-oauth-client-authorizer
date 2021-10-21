@@ -21,6 +21,8 @@ spec:
       containers:
         - name: manager
           env:
+          - name: KOPF_PEERING
+            value: {{ include "openshift-oauth-client-authorizer.name" . }}
           - name: TIMER_INTERVAL
             value: "{{ .Values.timerInterval }}"
           image: {{ include "openshift-oauth-client-authorizer.image" . | quote }}
