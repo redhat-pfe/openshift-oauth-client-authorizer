@@ -5,6 +5,15 @@
 deploy: true
 replicaCount: 1
 
+authorizers: []
+#authorizers:
+#  - name: examplesa
+#    namespace: exampleapp
+#    scopes:
+#      - user:check-access
+#      - user:info
+#    serviceAcountName: examplesa
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

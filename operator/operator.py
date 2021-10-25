@@ -117,7 +117,7 @@ class OAuthClientAuthorizationAutomation:
 
     @property
     def scopes(self):
-        return self.spec.get('scopes', ['user:info', 'user:check-access'])
+        return self.spec.get('scopes', ['user:check-access', 'user:info'])
 
     @property
     def service_account_name(self):

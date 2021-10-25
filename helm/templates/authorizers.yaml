@@ -1,0 +1,13 @@
+{{- range .Values.authorizers }}
+apiVersion: pfe.redhat.com/v1
+kind: OAuthClientAuthorizationAutomation
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+spec:
+  serviceAccountName: {{ .serviceAccountName | default .name }}
+  {{- if .scopes }}
+  scopes:
+    {{- toYaml .scopes | nindent 4 }}
+  {{- end }}    
+{{- end }}    
