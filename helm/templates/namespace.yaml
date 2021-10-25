@@ -1,0 +1,8 @@
+{{- if and .Values.deploy .Values.namespace.create -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "openshift-oauth-client-authorizer.namespaceName" . }}
+  labels:
+    {{- include "openshift-oauth-client-authorizer.labels" . | nindent 4 }}
+{{- end }}
