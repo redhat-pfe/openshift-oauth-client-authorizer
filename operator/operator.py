@@ -2,6 +2,7 @@
 
 import kopf
 import kubernetes
+import logging
 import os
 import threading
 import time
@@ -17,6 +18,25 @@ else:
 
 core_v1_api = kubernetes.client.CoreV1Api()
 custom_objects_api = kubernetes.client.CustomObjectsApi()
+
+
+class InfiniteRelativeBackoff:
+    def __init__(self, initial_delay=0.1, n=2, maximum=60):
+        self.initial_delay = initial_delay
+        self.n = n
+        self.maximum = maximum
+
+    def __iter__(self):
+        c = 0
+        while True:
+            delay = self.initial_delay * self.n ** c
+            if delay > self.maximum:
+                break
+            yield delay
+            c += 1
+        while True:
+            yield self.maximum
+
 
 class OAuthClientAuthorization:
     def __init__(self, resource):
@@ -292,9 +312,20 @@ class User:
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
+    # Never give up from network errors
+    settings.networking.error_backoffs = InfiniteRelativeBackoff()
+
+    # Use operator domain as finalizer
+    settings.persistence.finalizer = operator_domain
+
+    # Store progress in status.
+    settings.persistence.progress_storage = kopf.StatusProgressStorage(field='status.kopf.progress')
+
+    # Only create events for warnings and errors
+    settings.posting.level = logging.WARNING
+
     # Disable scanning for CustomResourceDefinitions
     settings.scanning.disabled = True
-    settings.persistence.finalizer = operator_domain
 
 @kopf.on.create(operator_domain, operator_api_version, 'oauthclientauthorizationautomations')
 @kopf.on.resume(operator_domain, operator_api_version, 'oauthclientauthorizationautomations')
